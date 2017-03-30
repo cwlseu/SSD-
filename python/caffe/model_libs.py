@@ -864,6 +864,7 @@ def CreateMultiBoxHead(net, data_layer="data", num_classes=[], from_layers=[],
         # Create location prediction layer.
         name = "{}_mbox_loc{}".format(from_layer, loc_postfix)
         num_loc_output = num_priors_per_location * 4;
+
         if not share_location:
             num_loc_output *= num_classes
         ConvBNLayer(net, from_layer, name, use_bn=use_batchnorm, use_relu=False, lr_mult=lr_mult,
