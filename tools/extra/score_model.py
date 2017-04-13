@@ -21,7 +21,7 @@ def list_dir(path, suffix='.caffemodel'):
       result.append(os.path.join(path, line))
   return result
 
-caffe_root = "/media/nfs/extend/ssd/caffe"
+caffe_root = "/home/nfs/caffe"
 model_dir = os.path.join(caffe_root, "models")
 solver_file = "models/VGGNet/VOC0712/SSD_300x300_score/solver.prototxt"
 job_dir = "jobs/VGGNet/VOC0712/SSD_300x300_score"
@@ -35,9 +35,9 @@ def create_score_model_script(model, gpu=True):
     f.write('cd {}\n'.format(caffe_root))
     f.write('./build/tools/caffe train \\\n')
     f.write('--solver="{}" \\\n'.format(solver_file))
-    f.write('--weights="{}" \\\n'.format(model))
+    f.write('--weights="{}" \\\n'.format(os.path.join(model_dir, model)))
     if gpu:
-      f.write('--gpu 0 2>&1 | tee {}/{}.log\n'.format(job_dir, model_name))
+      f.write('--gpu 0 1 2>&1 | tee {}/{}.log\n'.format(model_dir, model_name))
     else:
       f.write('2>&1 | tee {}/{}.log\n'.format(job_dir, model_name))
   os.chmod(job_file, stat.S_IRWXU)
@@ -48,7 +48,7 @@ def main():
   make_if_not_exist(job_dir)
   models = list_dir(model_dir, ".caffemodel")
   l = len(models)
-  for model in models:
+  for model in sorted(models):
     job_file = create_score_model_script(model=model, gpu=True)
     subprocess.call(job_file, shell=True)
   # jobs = list_dir(model_dir, ".sh")
